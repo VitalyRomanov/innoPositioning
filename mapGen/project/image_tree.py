@@ -1,4 +1,4 @@
-from walls_representation import Point
+from mapGen.project.walls_representation import Point
 
 
 class ImageTree:

@@ -1,4 +1,4 @@
-from map_builder import MapBuilder
+from mapGen.project.map_builder import MapBuilder
 
 
 def main():

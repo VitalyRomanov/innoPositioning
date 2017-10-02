@@ -21,8 +21,8 @@ K = 100
 ################################################################
 
 ##############Statistics calculation############################
-def cond_prob(rssi, mu, sigma):
-    cond_prob = stats.norm(mu, sigma).pdf(rssi)
+def cond_prob(rssi, mu, sigma):             #I don't know what is it
+    cond_prob = stats.norm(mu, sigma).pdf(rssi)  #плотность распределения вероятностей
     return cond_prob
 
 
@@ -31,7 +31,7 @@ def sample_generation(mu_a, sigma_a, K):
     p_a = stats.norm(mu_a, sigma_a).pdf(a)
     return [a, p_a]
 
-def sample_generation_vectors(mu_a, sigma_a, K):
+def sample_generation_vectors(mu_a, sigma_a, K): #I don't know what is it
     v1 = np.random.normal(mu_a, sigma_a, K) # can be changed
     v2 = np.random.normal(mu_a, sigma_a, K)
     a = np.ndarray(shape=(K,2))
@@ -42,8 +42,11 @@ def sample_generation_vectors(mu_a, sigma_a, K):
     return [a, p_a]
 
 def combine_prob(m_p, rssi_prob, boosting = 1e100):
-    trans_prob = np.multiply(m_p, rssi_prob)
-    boosting_coefficient = boosting / np.sum(trans_prob)
+    # print("m_p = ",m_p)
+    # print("rssi_prob = ",rssi_prob)
+    trans_prob = np.multiply(m_p, rssi_prob)    #p(RSSI1(t) , sij(t) ) для каждой ячейки?   point(4)ThesisProgress
+    # print("trans_prob = ",trans_prob)
+    boosting_coefficient = boosting / np.sum(trans_prob)    #for what? порого?
     return trans_prob*boosting_coefficient
 ################################################################
 
@@ -60,12 +63,22 @@ class VirtualEnvironment:
         d0 = 4
         p_d0 = -53
         x = np.ones((self.m, 1), int) * range(self.n)
+        print("x =", x)
         y = np.transpose(np.ones((self.n, 1), int) * range(self.m))
+        print("y =" , y)
         d = np.sqrt((x - x0) ** 2 + (y - y0) ** 2) + d0
-        mu_t = p_d0 - 10 * alpha * np.log10(d / d0)
-        self.mu.append(mu_t)
+        print("d =" , d)
+        mu_t = p_d0 - 10 * alpha * np.log10(d / d0) #The prior information about the probability p (k) on this step is gotten by this expression
+        #среднее значение силы сигнала
+        #Signal strength distribution inside the room
 
+        print("mu_t =" , mu_t)
+        self.mu = mu_t
+        # self.mu.append(mu_t)
+        # self.mu = np.append(mu_t)
+        print("mu = " , self.mu)
         self.sigma = np.full((self.n, self.m), 0.1) #variance
+        print("sigma = ", self.sigma)
 
 class VirtualEnvironment2AP:
     def __init__(self, n, m, x0, y0, x1, y1):
@@ -139,28 +152,30 @@ def intersect_with_wall(a, b, building):
 
 ###################Path generation#############################
 def path_generation(length, pos_0, v_0, env):
-    n = env.n
-    m = env.m
-    mu = env.mu
-    sigma = env.sigma
+    n = env.n   #height
+    m = env.m   #width
+    mu = env.mu ##Signal strength distribution inside the room
+    sigma = env.sigma   #sigma
     building = env.building
 
     path = [(pos_0[0], pos_0[1])]
+    print("path =",path)
     rssi = []
     rssi.append(((np.random.normal(mu[pos_0[0]][pos_0[1]], sigma[pos_0[0]][pos_0[1]], 1)), 0))
-    v_x = v_0[0]
-    v_y = v_0[1]
-
+    v_x = v_0[0]        #velocity
+    v_y = v_0[1]        #velocity
+    print("rssi random from mu =",rssi)
+    # not exactly understandable
     for i in range(1, length):
-        print(i)
+        # print(i)
         v_x_t = v_x
         v_y_t = v_y
         x = path[-1][0]
         y = path[-1][1]
         a_x = 0
         a_y = 0
-        a_x = np.random.normal(0, 1)
-        a_y = np.random.normal(0, 1)
+        a_x = np.random.normal(0, 1)        #for what?
+        a_y = np.random.normal(0, 1)        #for what?
         a_x_t = a_x
         a_y_t = a_y
         x = int(round(path[-1][0] + v_x * dt + a_x*dt*dt / 2, 0))
@@ -169,8 +184,8 @@ def path_generation(length, pos_0, v_0, env):
         if x >= 0 and x < n and y >= 0 and y < m:
             v_x = v_x + a_x * dt
             v_y = v_y + a_y * dt
-            print(str(x) + " " + str(y))
-            print(str(v_x) + " " + str(v_y))
+            # print(str(x) + " " + str(y))
+            # print(str(v_x) + " " + str(v_y))
             path.append((x, y))
             rssi.append(((np.random.normal(mu[x][y], sigma[x][y], 1)), 0))
         else:
@@ -184,8 +199,8 @@ def path_generation(length, pos_0, v_0, env):
             if x >=0 and x < n and y >=0 and y < m:
                 v_x = v_x + a_x * dt
                 v_y = v_y + a_y * dt
-                print(str(x) + " " + str(y))
-                print(str(v_x) + " " + str(v_y))
+                # print(str(x) + " " + str(y))
+                # print(str(v_x) + " " + str(v_y))
                 path.append((x, y))
                 rssi.append(((np.random.normal(mu[x][y], sigma[x][y], 1)), 0))
             else:
@@ -199,10 +214,10 @@ def path_generation(length, pos_0, v_0, env):
                 if x >= 0 and x < n and y >= 0 and y < m:
                     v_x = v_x + a_x * dt
                     v_y = v_y + a_y * dt
-                    print(str(x) + " " + str(y))
-                    print(str(v_x) + " " + str(v_y))
-                    path.append((x, y))
-                    rssi.append(((np.random.normal(mu[x][y], sigma[x][y], 1)), 0))
+                    # print(str(x) + " " + str(y))
+                    # print(str(v_x) + " " + str(v_y))
+                    path.append((x, y))                                             #i can't understand what is it
+                    rssi.append(((np.random.normal(mu[x][y], sigma[x][y], 1)), 0))  #i can't understand what is it
                 else:
                     a_x = a_x_t
                     a_y = -a_y_t
@@ -214,8 +229,8 @@ def path_generation(length, pos_0, v_0, env):
                     if x >= 0 and x < n and y >= 0 and y < m:
                         v_x = v_x + a_x * dt
                         v_y = v_y + a_y * dt
-                        print(str(x) + " " + str(y))
-                        print(str(v_x) + " " + str(v_y))
+                        # print(str(x) + " " + str(y))
+                        # print(str(v_x) + " " + str(v_y))
                         path.append((x, y))
                         rssi.append(((np.random.normal(mu[x][y], sigma[x][y], 1)), 0))
                     else:
@@ -225,8 +240,8 @@ def path_generation(length, pos_0, v_0, env):
                         v_y = v_y_t
                         x = path[-1][0]
                         y = path[-1][1]
-                        print(str(x) + " " + str(y))
-                        print(str(v_x) + " " + str(v_y))
+                        # print(str(x) + " " + str(y))
+                        # print(str(v_x) + " " + str(v_y))
                         path.append((x, y))
                         rssi.append(((np.random.normal(mu[x][y], sigma[x][y], 1)), 0))
 

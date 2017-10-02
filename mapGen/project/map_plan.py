@@ -1,4 +1,4 @@
-from walls_representation import Point, Wall
+from mapGen.project.walls_representation import Point, Wall
 
 
 class MapPlan:

@@ -2,9 +2,9 @@ import math
 import itertools
 import pickle
 import numpy as np
-from map_plan import MapPlan
-from image_tree import ImageTree
-from walls_representation import Point
+from mapGen.project.map_plan import MapPlan
+from mapGen.project.image_tree import ImageTree
+from mapGen.project.walls_representation import Point
 
 
 class MapBuilder:

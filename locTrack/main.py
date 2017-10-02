@@ -1,25 +1,26 @@
-from basic_finctions import *
-from bayesian_filter import *
-from viterbi import *
+from locTrack.basic_finctions import *
+from locTrack.bayesian_filter import *
+from locTrack.viterbi import *
 from mapGen import *
 
 def main():
-    '''
+
     env = VirtualEnvironment(15, 15, 0, 0)
     #env = RealEnvironment(BuildingDormitory, 'signal_strength_matrix_dormitory_AP')
-    '''
 
     # start point
     pos_0 = np.array([2, 2])
     # start velocity
     v_0 = np.array([0, 0])
-    '''
     ####Single AP########
-    RSSI, path = path_generation(7, pos_0, v_0, env)
+    RSSI, path = path_generation(7, pos_0, v_0, env) #почему rssi не всех ячеек?
+    print("rssi in main= ", RSSI)
+    print("path in main = ", path)
 
-    BayesianFilter(RSSI, env, path, pos_0, v_0)
-    #Viterbi(RSSI, env, path, pos_0, v_0)
+    #BayesianFilter(RSSI, env, path, pos_0, v_0)
+    Viterbi(RSSI, env, path, pos_0, v_0)
     #####################
+    '''
 
     ####2AP experiments#####
     env = VirtualEnvironment2AP(15, 15, 0, 0, 14, 14)
